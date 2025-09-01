@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ActiveIndexProvider } from "@/context/ActiveIndexContext";
+import Providers from "./Providers";
 
 const yekanBakh = localFont({
   src: "../fonts/YekanBakh-Regular.woff2",
@@ -21,7 +22,9 @@ export default function RootLayout({
   return (
     <html lang="fa" dir="rtl">
       <ActiveIndexProvider>
-        <body className={`${yekanBakh.className} antialiased`}>{children}</body>
+        <body className={`${yekanBakh.className} antialiased`}>
+          <Providers>{children}</Providers>
+        </body>
       </ActiveIndexProvider>
     </html>
   );

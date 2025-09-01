@@ -9,16 +9,29 @@ interface CustomInputProps extends React.ComponentProps<"input"> {
 }
 
 const CustomInput = React.forwardRef<HTMLInputElement, CustomInputProps>(
-  ({ className, type = "text", label, icon, ...props }, ref) => {
+  (
+    {
+      className,
+      type = "text",
+      label,
+      icon,
+      value,
+      onChange,
+      onBlur,
+      ...props
+    },
+    ref
+  ) => {
     const [focused, setFocused] = useState(false);
-    const [value, setValue] = useState(props.value ?? "");
     const inputRef = useRef<HTMLInputElement>(null);
 
     const handleFocus = () => setFocused(true);
-    const handleBlur = () => setFocused(false);
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+      setFocused(false);
+      onBlur?.(e);
+    };
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setValue(e.target.value);
-      props.onChange?.(e);
+      onChange?.(e);
     };
 
     return (
@@ -28,7 +41,15 @@ const CustomInput = React.forwardRef<HTMLInputElement, CustomInputProps>(
             "flex h-16 items-center border border-input rounded-md px-3 py-2 bg-background transition-colors duration-200 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/50",
             focused || value ? "ring-2 ring-ring" : ""
           )}
-          onClick={() => inputRef.current?.focus()}
+          onMouseDown={(e) => {
+            const input = inputRef.current;
+            if (!input) return;
+            if (e.target === input) return;
+            if (document.activeElement !== input) {
+              input.focus();
+              e.preventDefault();
+            }
+          }}
         >
           {icon ? (
             <span
@@ -65,7 +86,7 @@ const CustomInput = React.forwardRef<HTMLInputElement, CustomInputProps>(
             />
             <label
               className={cn(
-                "absolute top-3 right-3 text-muted-foreground pointer-events-none transition-all duration-200 bg-background ",
+                "absolute top-3 right-3 text-muted-foreground pointer-events-none transition-all duration-200 bg-background",
                 (focused || value) && "top-0 text-sm"
               )}
             >
@@ -77,6 +98,7 @@ const CustomInput = React.forwardRef<HTMLInputElement, CustomInputProps>(
     );
   }
 );
+
 CustomInput.displayName = "CustomInput";
 
 export default CustomInput;
