@@ -7,8 +7,9 @@ interface items {
   id: string;
   title: string;
   completed: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
+  pending?: string | null;
 }
 
 interface ListItemProps {
@@ -17,7 +18,6 @@ interface ListItemProps {
 }
 
 const Listitems = ({ item, index }: ListItemProps) => {
-
   return (
     <div
       key={item.id}
@@ -29,10 +29,7 @@ const Listitems = ({ item, index }: ListItemProps) => {
       >
         <Edit className="w-20 h-20" />
       </Button>
-      <ListContent
-        item={item}
-        index={index}
-      />
+      <ListContent item={item} index={index} />
       <Button
         variant={"destructive"}
         className="absolute left-0 w-[20%] h-[80%] flex items-center justify-end cursor-pointer md:group-hover:translate-x-[-40px]"

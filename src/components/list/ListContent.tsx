@@ -10,8 +10,9 @@ interface items {
   id: string;
   title: string;
   completed: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
+  pending?: string | null;
 }
 
 interface ListContentProps {
@@ -50,6 +51,9 @@ const ListContent = ({ item, index }: ListContentProps) => {
           <p className="text-sm text-gray-500">
             وضعیت: {item.completed ? "انجام شده" : "انجام نشده"}
           </p>
+          {item.pending === "add" && (
+            <p className="text-sm text-amber-500">در سرور ذخیره نشده</p>
+          )}{" "}
         </CardContent>
       </Card>
     </motion.div>

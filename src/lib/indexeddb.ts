@@ -3,7 +3,7 @@ import Dexie, { type EntityTable } from "dexie";
 
 type PendingType = "add" | "edit" | "delete" | null;
 
-type LocalTodo = Todo & {
+export type LocalTodo = Todo & {
   pending?: PendingType;
 };
 
