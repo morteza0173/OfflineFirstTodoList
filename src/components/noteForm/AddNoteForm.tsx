@@ -20,6 +20,7 @@ import { indexeddb, LocalTodo } from "@/lib/indexeddb";
 import { useQueryClient } from "@tanstack/react-query";
 
 export async function savePendingTodos(todos: LocalTodo[]) {
+  await indexeddb.pendingTodos.clear();
   await indexeddb.pendingTodos.bulkAdd(todos);
 }
 
