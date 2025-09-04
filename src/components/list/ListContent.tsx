@@ -51,10 +51,9 @@ const ListContent = ({ item, index }: ListContentProps) => {
           <p className="text-sm text-gray-500">
             وضعیت: {item.completed ? "انجام شده" : "انجام نشده"}
           </p>
-          {item.pending === "add" ||
-            (item.pending === "edit" && (
-              <p className="text-sm text-amber-500">در سرور ذخیره نشده</p>
-            ))}{" "}
+          {(item.pending === "add" || item.pending === "edit") && (
+            <p className="text-sm text-amber-500">در سرور ذخیره نشده</p>
+          )}
         </CardContent>
       </Card>
     </motion.div>
