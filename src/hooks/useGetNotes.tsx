@@ -63,8 +63,13 @@ export function useGetNotes() {
     queryKey: ["todos"],
     queryFn: async () => {
       try {
-        const data = await getTodosData();
-        const merged = await saveTodos(data);
+        const serverTodos = await getTodosData();
+
+        await indexeddb.todos.clear();
+
+        await indexeddb.todos.bulkPut(serverTodos);
+
+        const merged = await saveTodos(serverTodos);
         setOfflineData(merged || []);
         return merged;
       } catch {
