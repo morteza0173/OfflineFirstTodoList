@@ -31,13 +31,7 @@ const SyncProvider = ({ children }: { children: React.ReactNode }) => {
       queryClient.invalidateQueries({ queryKey: ["todos"] });
     },
     onError: (error, variables) => {
-      if ("code" in error) {
-        if (error.code === "NOT_FOUND") {
-          indexeddb.pendingTodos.delete(variables.id);
-        } else {
-          console.log("مشکل اتصال، pending حفظ شد");
-        }
-      }
+      console.error("❌ خطا در سینک", error, variables);
     },
   });
 
@@ -50,13 +44,7 @@ const SyncProvider = ({ children }: { children: React.ReactNode }) => {
       queryClient.invalidateQueries({ queryKey: ["todos"] });
     },
     onError: (error, variables) => {
-      if ("code" in error) {
-        if (error.code === "NOT_FOUND") {
-          indexeddb.pendingTodos.delete(variables.id);
-        } else {
-          console.log("مشکل اتصال، pending حفظ شد");
-        }
-      }
+      console.error("❌ خطا در سینک", error, variables);
     },
   });
 

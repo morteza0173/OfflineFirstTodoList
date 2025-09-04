@@ -33,6 +33,23 @@ export async function saveTodos(serverTodos: LocalTodo[]) {
   }
 }
 
+export async function cleanUpPendingTodos(serverTodos: LocalTodo[]) {
+  try {
+    const pendingTodos = await indexeddb.pendingTodos.toArray();
+
+    for (const pending of pendingTodos) {
+      if (
+        (pending.pending === "edit" || pending.pending === "delete") &&
+        !serverTodos.some((todo) => todo.id === pending.id)
+      ) {
+        await indexeddb.pendingTodos.delete(pending.id);
+      }
+    }
+  } catch (error) {
+    console.error("خطا در پاکسازی داده‌های پندینگ نامعتبر:", error);
+  }
+}
+
 export function useGetNotes() {
   const queryClient = useQueryClient();
   const [offlineData, setOfflineData] = useState<LocalTodo[]>([]);
@@ -68,6 +85,8 @@ export function useGetNotes() {
         await indexeddb.todos.clear();
 
         await indexeddb.todos.bulkPut(serverTodos);
+
+        await cleanUpPendingTodos(serverTodos);
 
         const merged = await saveTodos(serverTodos);
         setOfflineData(merged || []);
