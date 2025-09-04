@@ -1,11 +1,11 @@
 import { ReactNode } from "react";
 import { QueryProvider } from "./QueryProvider";
-import AddSyncProvider from "./AddSyncProvider";
+import SyncProvider from "./SyncProvider";
 
 const Providers = ({ children }: { children: ReactNode }) => {
   return (
     <QueryProvider>
-      <AddSyncProvider>{children}</AddSyncProvider>
+      <SyncProvider>{children}</SyncProvider>
     </QueryProvider>
   );
 };

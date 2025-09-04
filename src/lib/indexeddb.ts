@@ -1,7 +1,7 @@
 import { Todo } from "@prisma/client";
 import Dexie, { type EntityTable } from "dexie";
 
-type PendingType = "add" | "edit" | "delete" | null;
+export type PendingType = "add" | "edit" | "delete" | null;
 
 export type LocalTodo = Todo & {
   pending?: PendingType;

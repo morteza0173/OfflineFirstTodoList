@@ -3,15 +3,15 @@
 import { prisma } from "@/lib/db";
 import { LocalTodo } from "@/lib/indexeddb";
 
-const addTodos = async ({ todo }: { todo: LocalTodo }) => {
+const addNote = async (note: LocalTodo) => {
   try {
     await prisma.todo.create({
       data: {
-        id: todo.id,
-        title: todo.title,
-        completed: todo.completed,
-        createdAt: todo.createdAt,
-        updatedAt: todo.updatedAt,
+        id: note.id,
+        title: note.title,
+        completed: note.completed,
+        createdAt: note.createdAt,
+        updatedAt: note.updatedAt,
       },
     });
   } catch (error) {
@@ -19,4 +19,4 @@ const addTodos = async ({ todo }: { todo: LocalTodo }) => {
     throw new Error("خطا در ثبت یادداشت");
   }
 };
-export default addTodos;
+export default addNote;

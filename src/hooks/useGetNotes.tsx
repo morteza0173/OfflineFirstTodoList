@@ -1,7 +1,7 @@
 "use client";
 import getTodosData from "@/actions/getTodos";
 import { indexeddb, LocalTodo } from "@/lib/indexeddb";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 async function getTodos(): Promise<LocalTodo[]> {
@@ -34,11 +34,22 @@ export async function saveTodos(serverTodos: LocalTodo[]) {
 }
 
 export function useGetNotes() {
+  const queryClient = useQueryClient();
+
   const [offlineData, setOfflineData] = useState<LocalTodo[]>([]);
 
   useEffect(() => {
     getTodos().then((todos) => setOfflineData(todos));
-  }, []);
+    const handler = () => {
+      const todos = queryClient.getQueryData<LocalTodo[]>(["todos"]) || [];
+      setOfflineData(todos);
+    };
+
+    window.addEventListener("new-todo", handler);
+    return () => {
+      window.removeEventListener("new-todo", handler);
+    };
+  }, [queryClient]);
 
   const {
     data: serverData,
@@ -67,7 +78,9 @@ export function useGetNotes() {
       acc[todo.id] = todo;
       return acc;
     }, {})
-  ).sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+  )
+    .filter((todo) => todo.pending !== "delete")
+    .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 
   return { data: mergedData, isPending, refetch, isError };
 }

@@ -15,7 +15,6 @@ import {
 import CustomInput from "../input/CustomInput";
 import { PencilLine } from "lucide-react";
 import { Button } from "../ui/button";
-import { v4 as uuidv4 } from "uuid";
 import { indexeddb, LocalTodo } from "@/lib/indexeddb";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -23,25 +22,30 @@ export async function savePendingTodos(todos: LocalTodo[]) {
   await indexeddb.pendingTodos.bulkPut(todos);
 }
 
-const AddNoteForm = () => {
+const EditNoteForm = ({
+  item,
+  close,
+}: {
+  item: LocalTodo;
+  close: () => void;
+}) => {
   const queryClient = useQueryClient();
 
   const form = useForm<z.infer<typeof addNoteFormSchema>>({
     resolver: zodResolver(addNoteFormSchema),
     defaultValues: {
-      note: "",
+      note: item.title,
     },
   });
 
   async function onSubmit(values: z.infer<typeof addNoteFormSchema>) {
-    const newId = uuidv4();
     const indexeddbData: LocalTodo = {
-      id: newId,
-      createdAt: new Date(),
+      id: item.id,
+      createdAt: item.createdAt,
       updatedAt: new Date(),
-      completed: false,
+      completed: item.completed,
       title: values.note,
-      pending: "add",
+      pending: "edit",
     };
     await savePendingTodos([indexeddbData]);
 
@@ -52,12 +56,12 @@ const AddNoteForm = () => {
 
     window.dispatchEvent(new Event("new-todo"));
 
-    form.reset();
+    close();
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 p-2">
         <FormField
           control={form.control}
           name="note"
@@ -83,10 +87,10 @@ const AddNoteForm = () => {
           className="w-full"
           size={"lg"}
         >
-          ثبت یادداشت
+          ویرایش یادداشت
         </Button>
       </form>
     </Form>
   );
 };
-export default AddNoteForm;
+export default EditNoteForm;
