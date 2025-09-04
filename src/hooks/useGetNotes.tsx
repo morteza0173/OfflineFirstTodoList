@@ -1,4 +1,5 @@
 "use client";
+
 import getTodosData from "@/actions/getTodos";
 import { indexeddb, LocalTodo } from "@/lib/indexeddb";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -17,7 +18,6 @@ export async function saveTodos(serverTodos: LocalTodo[]) {
     const offlinePending = await indexeddb.pendingTodos.toArray();
 
     const mergedMap: Record<string, LocalTodo> = {};
-
     [...serverTodos, ...offlinePending].forEach((todo) => {
       mergedMap[todo.id] = todo;
     });
@@ -35,20 +35,23 @@ export async function saveTodos(serverTodos: LocalTodo[]) {
 
 export function useGetNotes() {
   const queryClient = useQueryClient();
-
   const [offlineData, setOfflineData] = useState<LocalTodo[]>([]);
+  const [isLoadingInitial, setIsLoadingInitial] = useState(true);
 
   useEffect(() => {
-    getTodos().then((todos) => setOfflineData(todos));
+    const loadOffline = async () => {
+      const todos = await getTodos();
+      setOfflineData(todos);
+      setIsLoadingInitial(false);
+    };
+    loadOffline();
+
     const handler = () => {
       const todos = queryClient.getQueryData<LocalTodo[]>(["todos"]) || [];
       setOfflineData(todos);
     };
-
     window.addEventListener("new-todo", handler);
-    return () => {
-      window.removeEventListener("new-todo", handler);
-    };
+    return () => window.removeEventListener("new-todo", handler);
   }, [queryClient]);
 
   const {
@@ -75,12 +78,15 @@ export function useGetNotes() {
       ...(serverData ?? []),
       ...offlineData.filter((o) => !serverData?.some((s) => s.id === o.id)),
     ].reduce<Record<string, LocalTodo>>((acc, todo) => {
-      acc[todo.id] = todo;
+      if (todo.pending !== "delete") acc[todo.id] = todo;
       return acc;
     }, {})
-  )
-    .filter((todo) => todo.pending !== "delete")
-    .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+  ).sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 
-  return { data: mergedData, isPending, refetch, isError };
+  return {
+    data: mergedData,
+    isPending: isPending || isLoadingInitial,
+    refetch,
+    isError,
+  };
 }
