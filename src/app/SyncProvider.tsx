@@ -42,6 +42,7 @@ const SyncProvider = ({ children }: { children: React.ReactNode }) => {
       await indexeddb.pendingTodos.delete(variables.id);
       await indexeddb.todos.delete(variables.id);
       queryClient.invalidateQueries({ queryKey: ["todos"] });
+      window.dispatchEvent(new Event("new-todo"));
     },
     onError: (error, variables) => {
       console.error("❌ خطا در سینک", error, variables);
