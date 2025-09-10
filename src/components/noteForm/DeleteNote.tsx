@@ -26,9 +26,37 @@ const DeleteNote = ({
     };
     await savePendingTodos([indexeddbData]);
 
-    queryClient.setQueryData<LocalTodo[]>(["todos"], (old = []) =>
-      old.filter((todo) => todo.id !== item.id)
-    );
+    const cachedTodos = queryClient.getQueryData<LocalTodo[]>(["todos"]);
+
+    if (!cachedTodos || cachedTodos.length === 0) {
+      const notes = await indexeddb.todos.toArray();
+      const pendingNotes = await indexeddb.pendingTodos.toArray();
+
+      const mergedMap: Record<string, LocalTodo> = {};
+      [...notes, ...pendingNotes].forEach((todo) => {
+        if (todo.id !== indexeddbData.id && todo.pending !== "delete") {
+          mergedMap[todo.id] = todo;
+        }
+      });
+
+      const merged = Object.values(mergedMap).sort(
+        (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
+      );
+
+      queryClient.setQueryData<LocalTodo[]>(["todos"], merged);
+    } else {
+      queryClient.setQueryData<LocalTodo[]>(["todos"], (old = []) => {
+        const mergedMap: Record<string, LocalTodo> = {};
+        old.forEach((todo) => {
+          if (todo.id !== indexeddbData.id && todo.pending !== "delete") {
+            mergedMap[todo.id] = todo;
+          }
+        });
+        return Object.values(mergedMap).sort(
+          (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
+        );
+      });
+    }
 
     window.dispatchEvent(new Event("new-todo"));
 

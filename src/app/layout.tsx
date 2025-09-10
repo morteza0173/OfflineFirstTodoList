@@ -10,8 +10,9 @@ const yekanBakh = localFont({
   weight: "400",
 });
 export const metadata: Metadata = {
-  title: "toDoList",
-  description: "A simple to-do list application",
+  title: "note list",
+  description: "offline first note list app",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
